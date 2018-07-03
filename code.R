@@ -20,7 +20,6 @@ env_layers <- c("Precipitation - annual","Temperature - annual max mean")
 triodia <- occurrences(taxon = "triodia", qa = "none",
                         download_reason_id = "testing",extra=env_layers)$data %>% mutate(plant ="Triodia")
 
-
 brachychiton <- occurrences(taxon = "brachychiton", qa = "none",
                        download_reason_id = "testing",extra=env_layers)$data %>% mutate(plant ="Brachychiton")
 
@@ -83,6 +82,30 @@ datos %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>% filter(ye
   ggplot(aes(x = year, y=precipitationAnnual)) +geom_line() + geom_point()+
   facet_wrap(~state)
 
+
+### Australian MAP
+load("aus_map.Rda")
+load("ausSmall.Rda")
+library(tidyverse)
+library(ochRe)
+
+
+aus_map %>%
+  ggplot() +
+  geom_polygon(aes(long, lat, group = group, fill = State)) +
+  theme_bw() + coord_map()+
+scale_fill_brewer(palette="Dark2") + coord_map()
+
+  
+
+
+aus_map %>%
+  ggplot() +
+  geom_polygon(aes(long, lat, group = group, fill = State)) +
+  theme_bw() + coord_map()+
+  scale_fill_brewer(palette="Dark2") + coord_map()
+
+  
 
 ### OLD code to check
 
