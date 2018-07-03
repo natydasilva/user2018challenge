@@ -85,27 +85,51 @@ datos %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>% filter(ye
 
 ### Australian MAP
 load("aus_map.Rda")
-load("ausSmall.Rda")
+
 library(tidyverse)
 library(ochRe)
 
 
-aus_map %>%
+map <- aus_map %>%
   ggplot() +
-  geom_polygon(aes(long, lat, group = group, fill = State)) +
-  theme_bw() + coord_map()+
-scale_fill_brewer(palette="Dark2") + coord_map()
+  geom_polygon(aes(long, lat, group = group), alpha=1/3) +
+  theme_bw() + coord_map() 
 
-  
+#MAP with totals by year
+plcant <-  function(y, siz = FALSE, col = TRUE, pl = "all"){
+if(pl=="all"){
+  dat3 <- datos %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>% 
+    filter(year == y) %>% mutate(total = n())   
+}else{
+at3 <- datos %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>% 
+  filter(year == y) %>% mutate(total = n()) %>% filter(plant==pl)
+}
+xs=quantile(dat3$total)
+datall <- dat3 %>% mutate(cattot = cut(total, breaks=c(xs[1], xs[2]), xs[3], xs[4], xs[5]))
+ if(col){
+ map + geom_point(data = dat3, aes(x = longitude, y =latitude, colour = total), alpha=1/3) +
+   labs(colour = "Total", title = paste(pl, y))
+ }else{
+ map + geom_point(data = dat3, aes(x = longitude, y =latitude, size = total), alpha =1/3) +
+     labs(sizw = "Total", title = paste(pl, y))
+ }
+}
+
+unique(datos$plant)
+
+plcant(2015)
+plcant(2015, pl = "Brachychiton" )
+plcant(2015, pl = "Triodia" )
+plcant(2015, pl = "Flindersia")
+plcant(2015, pl = "Livistona")
+plcant(2015, pl =  "Callitris")
+plcant(2015, pl =  "Daviesia")
+plcant(2015, pl =  "Ficus")
+plcant(2015, pl =  "Hakea")
 
 
-aus_map %>%
-  ggplot() +
-  geom_polygon(aes(long, lat, group = group, fill = State)) +
-  theme_bw() + coord_map()+
-  scale_fill_brewer(palette="Dark2") + coord_map()
 
-  
+
 
 ### OLD code to check
 
