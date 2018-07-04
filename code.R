@@ -57,6 +57,9 @@ datos <- rbind(triodia, brachychiton, flindersia, livistona,
   dplyr::select(year, month, eventDate, longitude, latitude, scientificNameOriginal, 
                 state, plant, precipitationAnnual, temperatureAnnualMaxMean) 
 
+write.csv(datos,file="datos.csv")
+
+
 datos %>% drop_na() %>% filter(state!="") %>%group_by( year,state) %>% summarise(total=n()) %>%
   filter(year>1990) %>%
   ggplot(aes(y=total, x=year)) + geom_point() + geom_line() + facet_wrap(~state) 
@@ -101,11 +104,11 @@ if(pl=="all"){
   dat3 <- datos %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>% 
     filter(year == y) %>% mutate(total = n())   
 }else{
-at3 <- datos %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>% 
+dat3 <- datos %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>% 
   filter(year == y) %>% mutate(total = n()) %>% filter(plant==pl)
 }
-xs=quantile(dat3$total)
-datall <- dat3 %>% mutate(cattot = cut(total, breaks=c(xs[1], xs[2]), xs[3], xs[4], xs[5]))
+# xs=quantile(dat3$total)
+# datall <- dat3 %>% mutate(cattot = cut(total, breaks=c(xs[1], xs[2]), xs[3], xs[4], xs[5]))
  if(col){
  map + geom_point(data = dat3, aes(x = longitude, y =latitude, colour = total), alpha=1/3) +
    labs(colour = "Total", title = paste(pl, y))
