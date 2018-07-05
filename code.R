@@ -178,6 +178,7 @@ fabaceae <- occurrences(taxon = "family:Fabaceae",
                         download_reason_id=4)
 library(data.table)
 plants <- fread("Plants-brief.csv")
+
 plants_sub <- plants %>% filter(grepl("Callitris", scientificName))
 plants_sub <- plants_sub %>% mutate(decimalLatitude = as.numeric(decimalLatitude))
 map + geom_point(data=plants_sub, aes(x=decimalLongitude, y=decimalLatitude), colour="orange")
