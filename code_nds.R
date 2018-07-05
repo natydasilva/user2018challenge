@@ -90,12 +90,7 @@ theme_set(theme_bw())
 
 #see how to reduce the map
 #only to check if the animation works
-red_map <- aus_map[sample(1:nrow(aus_map), 100 ),]
 
-mapita <- aus_map %>%
-  ggplot() +
-  geom_polygon(aes(long, lat, group = group), alpha = 1/3) +
-  theme_bw() + coord_map() + theme_map()
 
 #Select a plant to see the evolution over the years
 plants_each <- plants_sub %>% filter(grepl("Callitris", scientificName)) %>% 
