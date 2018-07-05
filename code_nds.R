@@ -5,7 +5,7 @@ library(ALA4R)
 library(RColorBrewer)
 library(ggthemes)
 library(data.table)
-#library(ochRe)
+library(ochRe)
 
 # 1. Data reduction, to run examples go to 2
 
@@ -22,7 +22,7 @@ plants_sub <- plants %>% filter(grepl(i, scientificName))
 write.csv(plants_sub, file =paste("", i, ".csv", sep=""))
 }
 #read all the csv files
-temp = list.files(pattern="*.csv")
+temp = list.files(pattern = "*.csv")
 myfiles = lapply(temp, read.delim)
 
 #Filter only data from Australia based on long and lat
@@ -31,7 +31,7 @@ plants_sub  <- rbind(triodia, brachychiton, flindersia, livistona,
   mutate(latitudeOriginal = as.numeric(latitudeOriginal)) %>% filter((-43.00311<=latitudeOriginal& latitudeOriginal<=-12.46113)) %>%
   filter(113.6594<=longitudeOriginal& longitudeOriginal<=153.61194)
 
-write.csv(plants_sub, file ="plant_sub.csv")
+write.csv(plants_sub, file = "plant_sub.csv")
 
 #2. Read reduced Data
 plants_sub <- read_csv("plant_sub.csv")
