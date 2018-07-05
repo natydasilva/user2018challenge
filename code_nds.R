@@ -14,10 +14,13 @@ plants <- fread("Plants-brief.csv")
 
 # Reduce the data set selecting only some plants
 # Triodia, Brachychiton, Flindersia, Livistona, Callitris, Daviesia, Ficus, Hakea
+taxa <- c("Triodia", "Brachychiton", "Flindersia", "Livistona", "Callitris",
+          "Daviesia", "Ficus", "Hakea")
 
-# plants_sub <- plants %>% filter(grepl("Hakea", scientificName))
-# write.csv(plants_sub, file ="hakea.csv")
-
+for(i in taxa){
+plants_sub <- plants %>% filter(grepl(i, scientificName))
+write.csv(plants_sub, file =paste("", i, ".csv", sep=""))
+}
 #read all the csv files
 temp = list.files(pattern="*.csv")
 myfiles = lapply(temp, read.delim)
@@ -99,7 +102,7 @@ plants_each <- plants_sub %>% filter(grepl("Callitris", scientificName)) %>%
 filter(year > 1990) %>%select(longitudeOriginal, latitudeOriginal, year)
 
 #can include the map
-mapani <-  ggplot(data = plants_each,  aes(x = longitudeOriginal, y = latitudeOriginal, frame = year )) +
+mapani <- ggplot(data = plants_each,  aes(x = longitudeOriginal, y = latitudeOriginal, frame = year )) +
    geom_point( colour = "orange") 
 
 gganimate(mapani)
