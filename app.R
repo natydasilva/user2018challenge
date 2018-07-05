@@ -1,6 +1,7 @@
 library(shiny)
 library(tidyverse)
 library(ALA4R)
+library(ggthemes)
 
 
 # Define UI for app that draws a histogram ----
