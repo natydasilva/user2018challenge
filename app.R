@@ -1,6 +1,7 @@
 library(shiny)
 library(tidyverse)
 library(ALA4R)
+library(ggthemes)
 
 
 # Define UI for app that draws a histogram ----
@@ -12,7 +13,7 @@ ui <- pageWithSidebar(
     selectInput('plant', 'Plants', c("Brachychiton", "Triodia", "Flindersia",
                                      "Livistona","Callitris", "Daviesia", "Ficus","Hakea"),
                 selected="Brachychiton")
-   
+
   ),
   mainPanel(
     plotOutput('plot1')
@@ -23,32 +24,32 @@ ui <- pageWithSidebar(
 
 # Define server logic required to draw a histogram ----
 server <- function(input, output, session) {
-  
+
   # Combine the selected variables into a new data frame
   selectedData <- reactive({
     datos <- read.csv("datos.csv")
   })
-  
- 
-  
+
+
+
   output$plot1 <- renderPlot({
-    
+
     ### Australian MAP
     load("aus_map.Rda")
-    
-    
+
+
     map <- aus_map %>%
       ggplot() +
       geom_polygon(aes(long, lat, group = group), alpha=1/3) +
-      theme_bw() + coord_map() 
-    
+      theme_bw() + theme_map() + coord_map()
+
     #MAP with totals by year
     plcant <-  function(y, siz = FALSE, col = TRUE, pl = "all", dat){
       if(pl == "all"){
-        dat3 <- dat %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>% 
-          filter(year == y) %>% mutate(total = n())   
+        dat3 <- dat %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>%
+          filter(year == y) %>% mutate(total = n())
       }else{
-        dat3 <- dat %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>% 
+        dat3 <- dat %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>%
           filter(year == y) %>% mutate(total = n()) %>% filter(plant == pl)
       }
       # xs=quantile(dat3$total)
@@ -61,15 +62,15 @@ server <- function(input, output, session) {
           labs(sizw = "Total", title = paste(pl, y))
       }
     }
-    
-    
-    
+
+
+
     plcant(y = input$year, pl = input$plant ,dat = selectedData())
-    
-    
-    
+
+
+
   })
-  
+
 }
 
 
