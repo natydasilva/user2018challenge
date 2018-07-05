@@ -5,7 +5,6 @@ library(ALA4R)
 library(RColorBrewer)
 library(ggthemes)
 library(data.table)
-library(tidyverse)
 library(ochRe)
 
 # 1. Data reduction, to run examples go to 2
