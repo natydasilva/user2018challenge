@@ -96,16 +96,24 @@ mapita <- aus_map %>%
   theme_bw() + coord_map() + theme_map()
 
 #Select a plant to see the evolution over the years
-plants <- plants_sub %>% filter(grepl("Callitris", scientificName)) %>% 
+plants_each <- plants_sub %>% filter(grepl("Callitris", scientificName)) %>% 
 filter(year > 1990) %>%select(longitudeOriginal, latitudeOriginal, year)
 
 #can include the map
-mapani <-  ggplot(data = plants,  aes(x = longitudeOriginal, y = latitudeOriginal, frame = year )) +
+mapani <-  ggplot(data = plants_each,  aes(x = longitudeOriginal, y = latitudeOriginal, frame = year )) +
    geom_point( colour = "orange") 
 
 gganimate(mapani)
 
 
+plants_all <- plants_sub  %>% 
+  filter(year > 1990) %>% select(longitudeOriginal, latitudeOriginal,
+                                 year, plant)
+
+mapani_facet <-  ggplot(data = plants_all,  aes(x = longitudeOriginal, y = latitudeOriginal, frame = year )) +
+  geom_point( colour = "orange") + facet_wrap(~plant)
+
+gganimate(mapani_facet)
 
 #Brachychiton, Flindersia, Livistona, Callitris, Daviesia, Ficus, Hakea
 
