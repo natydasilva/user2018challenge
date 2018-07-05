@@ -16,72 +16,75 @@ library(ggthemes)
 taxa <- c("triodia", "brachychiton", "flindersia", "livistona", "callitris", "daviesia", "ficus", "hakea")
 
 ## define some environmental layers of interest [see ala_fields()]
-env_layers <- c("Precipitation - annual","Temperature - annual max mean")
+env_layers <- c("Precipitation - summer reliability",
+                "Precipitation - winter reliability",
+                "Precipitation - autumn reliability",
+                "Precipitation - spring reliability",
+                "Precipitation - summer",
+                "Precipitation - winter",
+                "Precipitation - autumn",
+                "Precipitation - spring",
+                "Precipitation - annual",
+                "Temperature - annual max mean")
 
 # can not select more than one taxon at the same time
 triodia <- occurrences(taxon = "triodia", qa = "none",
-                        download_reason_id = "testing",extra=env_layers)$data %>% mutate(plant ="Triodia")
+                       download_reason_id = "testing", extra = env_layers)$data %>% mutate(plant ="Triodia")
 
 brachychiton <- occurrences(taxon = "brachychiton", qa = "none",
-                       download_reason_id = "testing",extra=env_layers)$data %>% mutate(plant ="Brachychiton")
-
+                            download_reason_id = "testing",extra = env_layers)$data %>% mutate(plant ="Brachychiton")
 
 flindersia <- occurrences(taxon = "flindersia", qa = "none",
-                            download_reason_id = "testing",extra=env_layers)$data %>% mutate(plant ="Flindersia")
-
+                          download_reason_id = "testing",extra = env_layers)$data %>% mutate(plant ="Flindersia")
 
 livistona <- occurrences(taxon = "livistona", qa = "none",
-                          download_reason_id = "testing",extra=env_layers)$data %>% mutate(plant ="Livistona")
-
+                         download_reason_id = "testing",extra=env_layers)$data %>% mutate(plant ="Livistona")
 
 callitris <- occurrences(taxon = "callitris", qa = "none",
                          download_reason_id = "testing",extra=env_layers)$data %>% mutate(plant ="Callitris")
 
-
 daviesia <- occurrences(taxon = "daviesia", qa = "none",
-                         download_reason_id = "testing", extra=env_layers)$data %>% mutate(plant ="Daviesia")
+                        download_reason_id = "testing", extra=env_layers)$data %>% mutate(plant ="Daviesia")
 
 ficus <- occurrences(taxon = "ficus", qa = "none",
-                        download_reason_id = "testing", extra=env_layers)$data %>% mutate(plant ="Ficus")
-
+                     download_reason_id = "testing", extra=env_layers)$data %>% mutate(plant ="Ficus")
 
 hakea <- occurrences(taxon = "hakea", qa = "none",
                      download_reason_id = "testing",extra=env_layers)$data %>% mutate(plant ="Hakea")
 
-
-
 datos <- rbind(triodia, brachychiton, flindersia, livistona,
                callitris, daviesia, ficus, hakea) %>%  dplyr::filter(rank %in%
-                c("species", "subspecies", "variety", "form", "cultivar")) %>%
+                                                                       c("species", "subspecies", "variety", "form", "cultivar")) 
 
-  mutate(longitude = round(longitude*2)/2, latitude = round(latitude*2)/2) %>%
-  group_by(longitude,latitude)  %>%
-  dplyr::select(year, month, eventDate, longitude, latitude, scientificNameOriginal,
-                state, plant, precipitationAnnual, temperatureAnnualMaxMean)
+#mutate(longitude = round(longitude*2)/2, latitude = round(latitude*2)/2) %>%
+#group_by(longitude,latitude)  %>%
+# dplyr::select(year, month, eventDate, longitude, latitude, scientificNameOriginal,
+#               state, plant, precipitationAnnual, temperatureAnnualMaxMean)
 
-write.csv(datos,file="datos.csv")
+write.csv(datos, file="datos.csv")
 
 
-datos %>% drop_na() %>% filter(state!="") %>%group_by( year,state) %>% summarise(total=n()) %>%
+datos %>%group_by( year, state) %>%  filter(state!="")%>% summarise(total=n()) %>%
   filter(year>1990) %>%
-  ggplot(aes(y=total, x=year)) + geom_point() + geom_line() + facet_wrap(~state)
+  ggplot(aes(y=total, x=year)) + geom_point() + geom_line() + facet_wrap(~state, scales="free_y")
 
-datos %>% drop_na() %>% filter(state!="") %>%group_by( year, plant) %>% summarise(total=n()) %>%
+datos %>% group_by( year, plant) %>% summarise(total=n()) %>%
   filter(year>1990) %>%
-  ggplot(aes(y=total, x=year, color=plant)) + geom_point() + geom_line() +
+  ggplot(aes(y = total, x = year, color = plant)) + geom_point() + geom_line() +
   scale_color_brewer(palette = "Dark2")
 
 #Is this evolution different by state?
-datos %>% drop_na() %>%filter(state!="")%>%group_by( year,  plant, state) %>% summarise(total=n()) %>%
+datos %>% filter(state!="") %>% group_by( year,  plant, state) %>% 
+  summarise(total=n()) %>%
   filter(year>1990) %>%
-  ggplot(aes(y=total, x=year, color=plant)) + geom_point() + geom_line() + facet_wrap(~state) +
-  scale_colour_brewer(palette = "Dark2") + theme(legend.position = "bottom")
-#
+  ggplot(aes(y=total, x=year, color=plant)) + geom_point() + geom_line() +
+  facet_wrap(~state, scales = "free_y") + scale_colour_brewer(palette = "Dark2") + theme(legend.position = "bottom")
+
 
 
 #presipitiation and temperature
 
-datos %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>% filter(year>1990) %>%
+datos %>% group_by(state, year) %>%filter(state!="") %>% filter(year>1990) %>%
   mutate(precipitationAnnual = mean(precipitationAnnual, na.rm = TRUE),
          temperatureAnnualMaxMean = mean(temperatureAnnualMaxMean, na.rm = TRUE)) %>%
   ggplot(aes(x = year, y=precipitationAnnual)) +geom_line() + geom_point()+
@@ -101,95 +104,19 @@ map <- aus_map %>%
   theme_bw() + coord_map() + theme_map()
 
 #MAP with totals by year
-plcant <-  function(y, siz = FALSE, col = TRUE, pl = "all"){
-if(pl=="all"){
-  dat3 <- datos %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>%
-    filter(year == y) %>% mutate(total = n())
-}else{
-dat3 <- datos %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>%
-  filter(year == y) %>% mutate(total = n()) %>% filter(plant==pl)
-}
-# xs=quantile(dat3$total)
-# datall <- dat3 %>% mutate(cattot = cut(total, breaks=c(xs[1], xs[2]), xs[3], xs[4], xs[5]))
- if(col){
- map + geom_point(data = dat3, aes(x = longitude, y =latitude, colour = total), alpha=1/3) +
-   labs(colour = "Total", title = paste(pl, y))
- }else{
- map + geom_point(data = dat3, aes(x = longitude, y =latitude, size = total), alpha =1/3) +
-     labs(sizw = "Total", title = paste(pl, y))
- }
-}
 
-unique(datos$plant)
+dat3 <- datos %>% group_by(state, year)  %>%filter(state!="") %>%
+  filter(year == 2016)  %>% filter(plant=="Triodia")
+map + geom_point(data = dat3, aes(x = longitude, y =latitude, size = precipitationSummer), alpha=1/3) 
 
-plcant(2015)
-plcant(2015, pl = "Brachychiton" )
-plcant(2015, pl = "Triodia" )
-plcant(2015, pl = "Flindersia")
-plcant(2015, pl = "Livistona")
-plcant(2015, pl =  "Callitris")
-plcant(2015, pl =  "Daviesia")
-plcant(2015, pl =  "Ficus")
-plcant(2015, pl =  "Hakea")
+#Animate presipitation  
+library(gganimate)
+plants_each <- datos %>% filter(grepl("Callitris", scientificName)) %>% 
+  filter(year > 1990) %>%select(longitudeOriginal, latitudeOriginal, year, precipitationSummer)
 
+# can't include the map
+mapani <-  ggplot(data = plants_each,  aes(x = longitudeOriginal, y = latitudeOriginal, size = precipitationSummer, frame = year )) +
+  geom_point( ) 
 
+gganimate(mapani)
 
-
-
-### OLD code to check
-
-brachychiton <- specieslist("brachychiton")
-dim(brachychiton)
-#Not useful only counts
-
-
-fabaceae <- occurrences(taxon = "family:Fabaceae", qa = "none",
-                        download_reason_id = "testing")
-
-
-
-fabaceaedat <- fabaceae$data %>%
-  ## discard genus- and higher-level records
-  dplyr::filter(rank %in%
-                  c("species", "subspecies", "variety", "form", "cultivar")) %>%
-
-  ## bin into 0.5-degree bins
-  mutate(longitude = round(longitude*2)/2, latitude = round(latitude*2)/2) %>%
-  group_by(longitude,latitude)  %>%
-  dplyr::select(year, month, eventDate, longitude, latitude, scientificNameOriginal,
-                state)
-
-#remove NA
-#How is the temporal evolution of fabaceae?
-#select data from 19900
-fabaceaedat %>% group_by( year) %>% summarise(total=n()) %>% drop_na() %>%
-  filter(year>19900) %>%
-  ggplot(aes(y=total, x=year)) + geom_point() + geom_line()
-
-#Is this evolution different by state?
-fabaceaedat %>% group_by( year, state) %>% summarise(total=n()) %>% drop_na() %>%
-  filter(year>19900) %>%
-  ggplot(aes(y=total, x=year, color=state)) + geom_point() + geom_line()
-
-# Rainfall
-l <- search_layers(type="all")
-fabaceae <- occurrences(taxon = "family:Fabaceae",
-                        extra = c("Precipitation - annual"),
-                        download_reason_id=4)
-library(data.table)
-plants <- fread("Plants-brief.csv")
-
-plants_sub <- plants %>% filter(grepl("Callitris", scientificName))
-plants_sub <- plants_sub %>% mutate(decimalLatitude = as.numeric(decimalLatitude))
-map + geom_point(data=plants_sub, aes(x=decimalLongitude, y=decimalLatitude), colour="orange")
-plants_triodia <- plants_sub
-plants_brachychiton <- plants_sub
-plants_flindersia <- plants_sub
-plants_livistona <- plants_sub
-plants_callitris <- plants_sub
-
-#Brachychiton, Flindersia, Livistona, Callitris, Daviesia, Ficus, Hakea
-
-# Environ vars to get
-# Precipitation - annual, spring, summer, winter, autumn + reliability
-#
