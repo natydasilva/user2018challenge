@@ -1,3 +1,6 @@
+# This is a Shiny Web Application created for useR!2018 Data Challange by Natalia Da Silva and Hazel Kavili. 
+# The app is about 10 plant species mostly observed in New South Wales and Queensland. 
+
 library(shiny)
 library(tidyverse)
 library(shinythemes)
@@ -32,14 +35,47 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
 
 
 # Define server logic required to draw a histogram ----
-server <- function(input, output, session) {
+server <- function(input, output, session){
   
   # Combine the selected variables into a new data frame
   selectedData <- reactive({
-    datos <- read_csv("plant_sub.csv")
+    plants_sub <- read_csv("plant_sub.csv")
   })
   
- 
+  #Descriptives
+  datosDesc <- plants_sub %>% group_by(state, year) %>%
+    filter(state != "") %>% filter(year > 1990) %>%
+    mutate(precipitationAnnual = mean(precipitationAnnual, na.rm = TRUE),
+           temperatureAnnualMaxMean = mean(temperatureAnnualMaxMean, na.rm = TRUE))
+
+  output$prpplot <- renderPlot({
+    ggplot(data = datosDesc, aes(x = year, y= precipitationAnnual)) +
+      geom_line() + geom_point() +
+      facet_wrap(~state)
+  })
+  
+  output$tempplot <- renderPlot({
+    ggplot(data = datosDesc, aes(x = year, y = temperatureAnnualMaxMean)) +
+      geom_line() + geom_point() +
+      facet_wrap(~state)
+  })
+
+  output$obsvplot <- renderPlot({
+    datosDesc %>% group_by(year, state) %>%
+      summarise(total = n()) %>%
+      filter(year > 1990) %>%
+      ggplot(aes(x = year, y = total)) +
+      geom_point() + geom_line() + facet_wrap(~state)
+  })
+
+  output$obsvplot2 <- renderPlot({
+    datosDesc %>% group_by(year, plant) %>%
+      summarise(total = n()) %>%
+      filter(year > 1990) %>%
+      ggplot(aes(y = total, x = year, color = plant)) +
+      geom_point() + geom_line()
+  })
+  
   
   output$plot1 <- renderPlot({
     
@@ -67,13 +103,12 @@ server <- function(input, output, session) {
         plants <- plants_sub %>% filter(grepl(pl, scientificName), year == y )
         
         map + 
-          geom_point(data = plants, aes(x = longitudeOriginal, y = latitudeOriginal), colour="orange") +
+          geom_point(data = plants, aes(x = longitudeOriginal, y = latitudeOriginal), colour = "orange") +
           labs(y = "Latitude", x = "Longitude", title = paste(input$plant, input$year))
       }
     }
     
-    
-    pl_plant(y = input$year, pl = input$plant ,dat = selectedData())
+   pl_plant(y = input$year, pl = input$plant, dat = selectedData())
     
   })
   
