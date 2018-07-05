@@ -78,6 +78,35 @@ pl_plant <- function(pl){
 }
 
 
+# Animated example
+library(gganimate)
+library(gapminder)
+library(ggplot2)
+theme_set(theme_bw())
+
+
+
+#see how to reduce the map
+#only to check if the animation works
+red_map <- aus_map[sample(1:nrow(aus_map), 100 ),]
+
+mapita <- aus_map %>%
+  ggplot() +
+  geom_polygon(aes(long, lat, group = group), alpha = 1/3) +
+  theme_bw() + coord_map() + theme_map()
+
+#Select a plant to see the evolution over the years
+plants <- plants_sub %>% filter(grepl("Callitris", scientificName)) %>% 
+filter(year > 1990) %>%select(longitudeOriginal, latitudeOriginal, year)
+
+#can include the map
+mapani <-  ggplot(data = plants,  aes(x = longitudeOriginal, y = latitudeOriginal, frame = year )) +
+   geom_point( colour = "orange") 
+
+gganimate(mapani)
+
+
+
 #Brachychiton, Flindersia, Livistona, Callitris, Daviesia, Ficus, Hakea
 
 # Environ vars to get
