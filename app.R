@@ -9,6 +9,7 @@ library(plotly)
 library(gganimate)
 library(ggthemes)
 library(ALA4R)
+library(ggthemes)
 
 
 # Define UI for app that draws a histogram ----
