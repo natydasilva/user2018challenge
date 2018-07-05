@@ -1,7 +1,6 @@
 library(shiny)
 library(tidyverse)
 library(ALA4R)
-library(ggthemes)
 
 
 # Define UI for app that draws a histogram ----
@@ -9,11 +8,11 @@ library(ggthemes)
 ui <- pageWithSidebar(
   headerPanel('Australia Plants'),
   sidebarPanel(
-    selectInput('year', 'Year', 1990:2016),
+    selectInput('year', 'Year', c("all",1990:2016)),
     selectInput('plant', 'Plants', c("Brachychiton", "Triodia", "Flindersia",
                                      "Livistona","Callitris", "Daviesia", "Ficus","Hakea"),
                 selected="Brachychiton")
-
+   
   ),
   mainPanel(
     plotOutput('plot1')
@@ -24,53 +23,49 @@ ui <- pageWithSidebar(
 
 # Define server logic required to draw a histogram ----
 server <- function(input, output, session) {
-
+  
   # Combine the selected variables into a new data frame
   selectedData <- reactive({
-    datos <- read.csv("datos.csv")
+    datos <- read_csv("plant_sub.csv")
   })
-
-
-
+  
+ 
+  
   output$plot1 <- renderPlot({
-
+    
     ### Australian MAP
+    
     load("aus_map.Rda")
-
-
+    #red_map <- aus_map[sample(1:nrow(aus_map), 2000 ),]
+    
     map <- aus_map %>%
       ggplot() +
-      geom_polygon(aes(long, lat, group = group), alpha=1/3) +
-      theme_bw() + theme_map() + coord_map()
-
+      geom_polygon(aes(long, lat, group = group), alpha = 1/3) +
+      theme_bw() + coord_map() + theme_map()
+    
     #MAP with totals by year
-    plcant <-  function(y, siz = FALSE, col = TRUE, pl = "all", dat){
-      if(pl == "all"){
-        dat3 <- dat %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>%
-          filter(year == y) %>% mutate(total = n())
+    
+    pl_plant <- function(pl, y ="all", dat){
+      if(y == "all"){
+        plants <- dat %>% filter(grepl(pl, scientificName))
+        
+        map + geom_point(data = plants, aes(x = longitudeOriginal, y = latitudeOriginal), colour = "orange") +
+          labs(y = "Latitude", x = "Longitude", title = paste(input$plant, input$year))
       }else{
-        dat3 <- dat %>% group_by(state, year) %>% drop_na() %>%filter(state!="") %>%
-          filter(year == y) %>% mutate(total = n()) %>% filter(plant == pl)
-      }
-      # xs=quantile(dat3$total)
-      # datall <- dat3 %>% mutate(cattot = cut(total, breaks=c(xs[1], xs[2]), xs[3], xs[4], xs[5]))
-      if(col){
-        map + geom_point(data = dat3, aes(x = longitude, y = latitude, colour = total), alpha = 1/3) +
-          labs(colour = "Total", title = paste(pl, y))
-      }else{
-        map + geom_point(data = dat3, aes(x = longitude, y = latitude, size = total), alpha = 1/3) +
-          labs(sizw = "Total", title = paste(pl, y))
+        plants <- plants_sub %>% filter(grepl(pl, scientificName), year == y )
+        
+        map + geom_point(data = plants, aes(x = longitudeOriginal, y = latitudeOriginal), colour="orange") +
+        labs(y = "Latitude", x = "Longitude", title = paste(input$plant, input$year))
       }
     }
-
-
-
-    plcant(y = input$year, pl = input$plant ,dat = selectedData())
-
-
-
+    
+    
+    pl_plant(y = input$year, pl = input$plant ,dat = selectedData())
+    
+    
+    
   })
-
+  
 }
 
 

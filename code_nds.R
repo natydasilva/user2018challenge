@@ -45,15 +45,23 @@ map <- aus_map %>%
   theme_bw() + coord_map() + theme_map()
 
 
-pl_plant <- function(pl){
+pl_plant <- function(pl, y ="all"){
+  if(y == "all"){
 plants <- plants_sub %>% filter(grepl(pl, scientificName))
 
 map + geom_point(data = plants, aes(x = longitudeOriginal, y = latitudeOriginal), colour="orange")
+  }else{
+    plants <- plants_sub %>% filter(grepl(pl, scientificName), year == y )
+    
+    map + geom_point(data = plants, aes(x = longitudeOriginal, y = latitudeOriginal), colour="orange")
+    
+  
+  }
 }
 
 # Triodia, Brachychiton, Flindersia, Livistona, Callitris, Daviesia, Ficus, Hakea
 #Map ok, data looks like in https://bie.ala.org.au/species/http://id.biodiversity.org.au/node/apni/2901419
-pl_plant("Triodia")
+pl_plant("Triodia", y = 2016)
 pl_plant("Brachychiton")
 pl_plant("Flindersia")
 pl_plant("Livistona")
@@ -62,6 +70,12 @@ pl_plant("Daviesia")
 pl_plant("Ficus")
 pl_plant("Hakea")
 
+
+pl_plant <- function(pl){
+  plants <- plants_sub %>% filter(grepl(pl, scientificName))
+  
+  map + geom_point(data = plants, aes(x = longitudeOriginal, y = latitudeOriginal), colour="orange")
+}
 
 
 #Brachychiton, Flindersia, Livistona, Callitris, Daviesia, Ficus, Hakea
