@@ -120,3 +120,7 @@ mapani <-  ggplot(data = plants_each,  aes(x = longitudeOriginal, y = latitudeOr
 
 gganimate(mapani)
 
+#Package to download climate data
+library(bomrang)
+
+library(help="bomrang")
