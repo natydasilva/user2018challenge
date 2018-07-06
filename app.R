@@ -69,7 +69,7 @@ server <- function(input, output, session){
   
   reactivePlants <- reactive({plantSub(input$genus)})
   output$plotTaxo <- renderPlot({
-    plotTree(reactivePlants(), type = "fan", color = "orange", fsize = 0.7) 
+    plotTree(reactivePlants(), type = "fan", color = "orange", fsize = 3) 
   })
   
   #Descriptives
