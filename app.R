@@ -56,15 +56,20 @@ server <- function(input, output, session){
   
   #Taxonomic Trees by Plants
   
-  tx <- plants_sub %>% filter(rank %in% c("species","subspecies")) %>% 
-    select(scientificName, genus, rank) %>% 
-    distinct(scientificName, genus, rank) %>% 
-    mutate_all(as.factor)
+  plantSub <- function(genus){
+    
+    tx <- plants_sub %>% filter(rank %in% c("species","subspecies")) %>% 
+      select(scientificName, genus, rank) %>% 
+      distinct(scientificName, genus, rank) %>% 
+      mutate_all(as.factor)
+    
+    ax <- as.phylo(~genus/scientificName, data = tx)
+    
+  }
   
-  ax <- as.phylo(~genus/scientificName, data = tx)
-  
+  reactivePlants <- reactive({plantSub(input$genus)})
   output$plotTaxo <- renderPlot({
-    plotTree(ax, type = "fan", color = "orange", fsize = 0.7) 
+    plotTree(reactivePlants(), type = "fan", color = "orange", fsize = 0.7) 
   })
   
   #Descriptives
