@@ -10,6 +10,7 @@ library(gganimate)
 library(ggthemes)
 library(ALA4R)
 library(ggthemes)
+library(shinycssloaders)
 
 
 # Define UI for app that draws a histogram ----
@@ -26,7 +27,7 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
                            
                            tabPanel("Plants on Map",
                                     sidebarPanel(width = 3,
-                                                 selectInput('year', 'Year', 1990:2016),
+                                                 selectInput('year', 'Year', c("all",1990:2016)),
                                                  selectInput('plant', 'Plants', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected="Brachychiton")),
                                     mainPanel(withSpinner(plotOutput(outputId = 'plot1')))),
                            
