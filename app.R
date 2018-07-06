@@ -32,8 +32,12 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
                                     mainPanel(withSpinner(plotOutput(outputId = 'plot1')))),
                            
                            
-                           tabPanel("Sub"))
-)
+                           tabPanel("Taxonomic Trees",
+                                    sidebarPanel(width = 3,
+                                                 selectInput('genus', 'Genus', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected = "Brachychiton")),
+                                    mainPanel(withSpinner(plotOutput(outputId = 'plotTaxo')))))
+
+    )
 
 
 # Define server logic required to draw a histogram ----
@@ -48,6 +52,20 @@ server <- function(input, output, session){
     datos <- read_csv("datos.csv")
   })
   
+  
+  
+  #Taxonomic Trees by Plants
+  
+  tx <- plants_sub %>% filter(rank %in% c("species","subspecies")) %>% 
+    select(scientificName, genus, rank) %>% 
+    distinct(scientificName, genus, rank) %>% 
+    mutate_all(as.factor)
+  
+  ax <- as.phylo(~genus/scientificName, data = tx)
+  
+  output$plotTaxo <- renderPlot({
+    plotTree(ax, type = "fan", color = "orange", fsize = 0.7) 
+  })
   
   #Descriptives
   datosDesc <- datos %>% group_by(state, year) %>% 
@@ -118,6 +136,9 @@ server <- function(input, output, session){
    pl_plant(y = input$year, pl = input$plant, dat = selectedData())
     
   })
+  
+  
+  
   
 }
 

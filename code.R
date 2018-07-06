@@ -64,7 +64,7 @@ datos <- rbind(triodia, brachychiton, flindersia, livistona,
 #               state, plant, precipitationAnnual, temperatureAnnualMaxMean)
 
 write.csv(datos, file="datos.csv")
-
+#datos <- read_csv("datos.csv")
 
 datos %>%group_by( year, state) %>%  filter(state!="")%>% summarise(total=n()) %>%
   filter(year>1990) %>%
@@ -130,3 +130,4 @@ gganimate(mapani)
 library(bomrang)
 
 library(help="bomrang")
+aus
