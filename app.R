@@ -43,8 +43,13 @@ server <- function(input, output, session){
     plants_sub <- read_csv("plant_sub.csv")
   })
   
+  selectedData2 <- reactive({
+    datos <- read_csv("datos.csv")
+  })
+  
+  
   #Descriptives
-  datosDesc <- plants_sub %>% group_by(state, year) %>%
+  datosDesc <- datos %>% group_by(state, year) %>% 
     filter(state != "") %>% filter(year > 1990) %>%
     mutate(precipitationAnnual = mean(precipitationAnnual, na.rm = TRUE),
            temperatureAnnualMaxMean = mean(temperatureAnnualMaxMean, na.rm = TRUE))
