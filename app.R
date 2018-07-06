@@ -32,8 +32,12 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
                                     mainPanel(withSpinner(plotOutput(outputId = 'plot1')))),
                            
                            
-                           tabPanel("Sub"))
-)
+                           tabPanel("Taxonomic Trees",
+                                    sidebarPanel(width = 3,
+                                                 selectInput('genus', 'Genus', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected = "Brachychiton")),
+                                    mainPanel(withSpinner(plotOutput(outputId = 'plotTaxo')))))
+
+    )
 
 
 # Define server logic required to draw a histogram ----
@@ -44,8 +48,32 @@ server <- function(input, output, session){
     plants_sub <- read_csv("plant_sub.csv")
   })
   
+  selectedData2 <- reactive({
+    datos <- read_csv("datos.csv")
+  })
+  
+  
+  
+  #Taxonomic Trees by Plants
+  
+  plantSub <- function(genus){
+    
+    tx <- plants_sub %>% filter(rank %in% c("species","subspecies")) %>% 
+      select(scientificName, genus, rank) %>% 
+      distinct(scientificName, genus, rank) %>% 
+      mutate_all(as.factor)
+    
+    ax <- as.phylo(~genus/scientificName, data = tx)
+    
+  }
+  
+  reactivePlants <- reactive({plantSub(input$genus)})
+  output$plotTaxo <- renderPlot({
+    plotTree(reactivePlants(), type = "fan", color = "orange", fsize = 3) 
+  })
+  
   #Descriptives
-  datosDesc <- plants_sub %>% group_by(state, year) %>%
+  datosDesc <- datos %>% group_by(state, year) %>% 
     filter(state != "") %>% filter(year > 1990) %>%
     mutate(precipitationAnnual = mean(precipitationAnnual, na.rm = TRUE),
            temperatureAnnualMaxMean = mean(temperatureAnnualMaxMean, na.rm = TRUE))
@@ -113,6 +141,9 @@ server <- function(input, output, session){
    pl_plant(y = input$year, pl = input$plant, dat = selectedData())
     
   })
+  
+  
+  
   
 }
 

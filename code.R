@@ -4,6 +4,7 @@ library(ALA4R)
 library(vegan)
 library(RColorBrewer)
 library(ggthemes)
+library(scales)
 
 ##
 # Triodia, Brachychiton, Flindersia, Livistona, Callitris, Daviesia, Ficus, Hakea. Need more?
@@ -53,8 +54,9 @@ hakea <- occurrences(taxon = "hakea", qa = "none",
                      download_reason_id = "testing",extra=env_layers)$data %>% mutate(plant ="Hakea")
 
 datos <- rbind(triodia, brachychiton, flindersia, livistona,
-               callitris, daviesia, ficus, hakea) %>%  dplyr::filter(rank %in%
-                                                                       c("species", "subspecies", "variety", "form", "cultivar")) 
+               callitris, daviesia, ficus, hakea) %>%  
+  dplyr::filter(rank %in%
+                c("species", "subspecies", "variety", "form", "cultivar")) 
 
 #mutate(longitude = round(longitude*2)/2, latitude = round(latitude*2)/2) %>%
 #group_by(longitude,latitude)  %>%
@@ -62,7 +64,7 @@ datos <- rbind(triodia, brachychiton, flindersia, livistona,
 #               state, plant, precipitationAnnual, temperatureAnnualMaxMean)
 
 write.csv(datos, file="datos.csv")
-
+#datos <- read_csv("datos.csv")
 
 datos %>%group_by( year, state) %>%  filter(state!="")%>% summarise(total=n()) %>%
   filter(year>1990) %>%
@@ -84,10 +86,13 @@ datos %>% filter(state!="") %>% group_by( year,  plant, state) %>%
 
 #presipitiation and temperature
 
-datos %>% group_by(state, year) %>%filter(state!="") %>% filter(year>1990) %>%
+datos %>% group_by(state, year) %>% 
+  filter(state!="") %>% 
+  filter(year>1990) %>%
   mutate(precipitationAnnual = mean(precipitationAnnual, na.rm = TRUE),
          temperatureAnnualMaxMean = mean(temperatureAnnualMaxMean, na.rm = TRUE)) %>%
-  ggplot(aes(x = year, y=precipitationAnnual)) +geom_line() + geom_point()+
+  ggplot(aes(x = year, y = precipitationAnnual)) + 
+  geom_line() + geom_point()+
   facet_wrap(~state)
 
 
@@ -112,7 +117,8 @@ map + geom_point(data = dat3, aes(x = longitude, y =latitude, size = precipitati
 #Animate presipitation  
 library(gganimate)
 plants_each <- datos %>% filter(grepl("Callitris", scientificName)) %>% 
-  filter(year > 1990) %>%select(longitudeOriginal, latitudeOriginal, year, precipitationSummer)
+  filter(year > 1990) %>%
+  select(longitudeOriginal, latitudeOriginal, year, precipitationSummer)
 
 # can't include the map
 mapani <-  ggplot(data = plants_each,  aes(x = longitudeOriginal, y = latitudeOriginal, size = precipitationSummer, frame = year )) +
@@ -124,3 +130,4 @@ gganimate(mapani)
 library(bomrang)
 
 library(help="bomrang")
+aus
