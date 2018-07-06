@@ -97,7 +97,7 @@ plants_each <- plants_sub %>% filter(grepl("Callitris", scientificName)) %>%
 filter(year > 1990) %>%select(longitudeOriginal, latitudeOriginal, year)
 
 #can include the map
-mapani <- ggplot(data = plants_each,  aes(x = longitudeOriginal, y = latitudeOriginal, frame = year )) +
+mapani <- map + ggplot(data = plants_each,  aes(x = longitudeOriginal, y = latitudeOriginal, frame = year )) +
    geom_point( colour = "orange") 
 
 gganimate(mapani)
