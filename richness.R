@@ -93,7 +93,7 @@ ggplot() + geom_point(data=sub, aes(x=n, y=latitude)) +
 ggplot() + geom_point(data=sub, aes(x=latitude, y=longitude, colour=n)) +
   scale_colour_viridis() + theme_map() + facet_wrap(~year, ncol=3)
 
-# Gondwanaland: Hakea, Daviesia, Calitris
+# Gondwanaland: Hakea, Daviesia, Callitris
 # NOT: Triodia, Ficus, Brachychiton
 # https://en.wikipedia.org/wiki/Latitudinal_gradients_in_species_diversity
 # Gondwanaland (original Australian plants) don't exhibit this pattern
