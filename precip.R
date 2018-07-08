@@ -107,4 +107,33 @@ map + geom_point(data=rain_stn_patterns_all, aes(x=lon, y=lat, colour=yr_rain)) 
 map + geom_point(data=rain_stn_patterns_all, aes(x=lon, y=lat, colour=sw_diff)) +
   scale_colour_distiller(palette="RdYlBu", limits=c(-1800, 1800))
 
+# Bin precip
+rain_stn_patterns_all_bin <- rain_stn_patterns_all %>%
+  mutate(lat_bin = round(lat*2, 0)/2, lon_bin = round(lon*2, 0)/2)
+map + geom_point(data=rain_stn_patterns_all_bin, aes(x=lon_bin, y=lat_bin, colour=yr_rain)) +
+  scale_colour_viridis_c()
 
+# Merge species richness with precip
+diversity_rain <- left_join(diversity_noyr, rain_stn_patterns_all_bin,
+                            by=c("longitude"="lon_bin", "latitude"="lat_bin"))
+genus_list <- c("Hakea", "Daviesia", "Callitris", "Triodia", "Brachychiton", "Ficus")
+
+diversity_rain %>% filter(genus %in% genus_list) %>%
+  ggplot(aes(x=yr_rain, y=n)) + geom_point() +
+  facet_wrap(~genus, ncol=3)
+# Double check counts
+nrow(unique(datos %>% filter(grepl("Hakea", scientificNameOriginal)) %>% select(scientificNameOriginal))) # Yes, its ok
+
+# Filter locations by rain being more than 500
+diversity_rain_onlysix <- diversity_rain %>%
+  filter(genus %in% genus_list) %>%
+  filter(yr_rain > 500 & yr_rain < 2500) %>%
+  mutate(genus = factor(genus, levels=c("Hakea", "Daviesia", "Callitris", "Triodia", "Brachychiton", "Ficus"))) %>%
+  group_by(genus) %>%
+  mutate(p=n/max(n)) %>%
+  ungroup()
+
+map +
+  geom_point(data=diversity_rain_onlysix, aes(x=lon, y=lat, colour=p), alpha=0.5) +
+  scale_colour_viridis_c() + facet_wrap(~genus)
+save(diversity_rain_onlysix, file="diversity_rain_onlysix.rda")
