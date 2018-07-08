@@ -11,6 +11,29 @@ library(ggthemes)
 library(ALA4R)
 library(ggthemes)
 library(shinycssloaders)
+library(factorMerger)
+library(data.table)
+library(viridis)
+
+datos <- fread("datos.csv")
+load("rain_all.rda")
+load("stns.rda")
+
+stations<- stns %>%mutate(Station_number = as.numeric(site)) 
+meteoro <- inner_join(stations, rain1, by = "Station_number") %>%
+  filter((-43.00311<=lat & lat<= -12.46113)) %>%
+  filter(113.6594 <= lon & lon <= 153.61194)
+mete_summer <- meteoro %>% filter(Month%in%c(12,1,2)) %>% group_by(Year, lon, lat) %>% summarise(Rainfallm = mean(Rainfall))  
+mete_winter <- meteoro %>%  filter(Month%in%c(6,7,8)) %>% group_by(Year, lon, lat) %>% summarise(Rainfallm = mean(Rainfall)) 
+
+load("aus_map.Rda")
+
+#red_map <- aus_map[sample(1:nrow(aus_map), 2000 ),]
+
+map <- aus_map %>%
+  ggplot() +
+  geom_polygon(aes(long, lat, group = group), alpha = 1/3) +
+  theme_bw() + coord_map() + theme_map()
 
 
 # Define UI for app that draws a histogram ----
@@ -29,7 +52,10 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
                                     sidebarPanel(width = 3,
                                                  selectInput('year', 'Year', c("all",1990:2016)),
                                                  selectInput('plant', 'Plants', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected="Brachychiton")),
-                                    mainPanel(withSpinner(plotOutput(outputId = 'plot1')))),
+                                    mainPanel(fluidRow(withSpinner(plotOutput(outputId = 'plot1'))), 
+                                              fluidRow(column(width = 6,withSpinner(plotOutput(outputId = 'plotrainsummer'))),
+                                              column(width = 6,withSpinner(plotOutput(outputId = 'plotrainwinter')))
+                                              ))),
                            
                            
                            tabPanel("Taxonomic Trees",
@@ -111,13 +137,6 @@ server <- function(input, output, session){
     
     ### Australian MAP
     
-    load("aus_map.Rda")
-    #red_map <- aus_map[sample(1:nrow(aus_map), 2000 ),]
-    
-    map <- aus_map %>%
-      ggplot() +
-      geom_polygon(aes(long, lat, group = group), alpha = 1/3) +
-      theme_bw() + coord_map() + theme_map()
     
     #MAP with totals by year
     
@@ -143,8 +162,33 @@ server <- function(input, output, session){
   })
   
   
+  output$plotrainsummer <- renderPlot({
+    
+if(input$year=="all"){
+  map + geom_point( data = mete_summer,  aes(x = lon, y = lat, colour = Rainfallm), size = I(4), alpha = 1/3) + 
+    scale_colour_viridis() + labs(title="Summer rain")
+}else{
+    
+    a <-  mete_summer %>% dplyr::filter(Year==input$year)
+    
+    map + geom_point( data = a,  aes(x = lon, y = lat, colour = Rainfallm), size = I(4), alpha = 1/3) + labs( title = paste("Summer rain", input$year)) + 
+      scale_colour_viridis()
+}    
+  })
   
-  
+  output$plotrainwinter <- renderPlot({
+    
+    if(input$year=="all"){
+      map + geom_point( data = mete_winter,  aes(x = lon, y = lat, colour = Rainfallm), size = I(4), alpha = 1/3) + 
+        scale_colour_viridis() + labs(title="Winter rain")
+    }else{
+      
+      a <-  mete_winter %>% dplyr::filter(Year==input$year)
+      
+      map + geom_point( data = a,  aes(x = lon, y = lat, colour = Rainfallm), size = I(4), alpha = 1/3) + labs( title = paste("Winter rain", input$year)) + 
+        scale_colour_viridis()
+    }    
+  })
 }
 
 
