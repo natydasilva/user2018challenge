@@ -1,7 +1,7 @@
 library(tidyverse)
 library(plotly)
 library(ggthemes)
-
+load("aus_map.Rda")
 map <- aus_map %>%
   ggplot() +
   geom_polygon(aes(long, lat, group = group), alpha=1/3, colour="grey90",

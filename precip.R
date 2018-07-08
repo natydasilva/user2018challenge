@@ -23,14 +23,14 @@ ggplot(latlong, aes(x=longitude, y=latitude)) + geom_point() +
 stns %>% count(site, sort=TRUE)
 
 #rain <- NULL
-for (i in 883:883) {
+for (i in 801:883) {
   cat(i, "\n")
   x <- get_historical(stationid=stns$site[i], type="rain")
   rain <- bind_rows(rain, x)
 }
 rain <- rain %>% filter(!is.na(Rainfall))
 
-save(rain, file="precip.rda")
+save(rain, file="precip701_800.rda")
 
 rain1_100 <- rain
 rain101_200 <- rain
