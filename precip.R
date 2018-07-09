@@ -59,14 +59,18 @@ map + geom_point(data=rain_stns, aes(x=lon, y=lat))
 # more diversity in the south
 # Which ancestral plants were temperate and suspect that they don't
 
-load("precip1_100.rda")
-load("precip701_800.rda")
-load("precip201_300.rda")
-load("precip301_400.rda")
-load("precip401_500.rda")
-load("precip501_600.rda")
-load("precip601_700.rda")
-load("precip801_883.rda")
+rain1 <- load("precip1_100.rda")
+#load("precip701_800.rda")
+rain2 <- load("precip201_300.rda")
+rain3 <- load("precip301_400.rda")
+rain4 <- load("precip401_500.rda")
+rain5 <- load("precip501_600.rda")
+rain6 <- load("precip601_700.rda")
+rain7 <- load("precip801_883.rda")
+
+rain <- rbind(rain1, rain2, rain3, rain4, rain5, rain6, rain7)
+
+
 rain_yr_smry <- rain %>% filter(Year > 1969) %>%
   group_by(Station_number, Year) %>%
   summarise(yr_rain = mean(Rainfall, na.rm=T)*365, n=length(Rainfall))
