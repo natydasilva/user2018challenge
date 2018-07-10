@@ -14,7 +14,7 @@ library(shinycssloaders)
 library(factorMerger)
 library(data.table)
 library(viridis)
-
+plants_sub <- read_csv("plant_sub.csv")
 datos <- fread("datos.csv")
 load("rain_all.rda")
 load("stns.rda")
@@ -29,6 +29,8 @@ datos_g_sp <- datos %>%
 genus <- c("Triodia", "Brachychiton", "Flindersia", "Livistona", "Callitris", "Daviesia", "Ficus", "Hakea")
 
 spec_counts <- datos %>% filter(!(species %in% genus))
+
+
 
 
 stations<- stns %>%mutate(Station_number = as.numeric(site)) 
@@ -62,21 +64,22 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
                            
                            tabPanel("Plants and rain",
                                     sidebarPanel(width = 3,
-                                                 selectInput('year', 'Year', c("2016",1990:2016)),
+                                                 selectInput('year', 'Year', c("all",1990:2016), selected=2016),
                                                  selectInput('plant', 'Plants', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected="Brachychiton")),
                                     mainPanel(fluidRow(withSpinner(plotOutput(outputId = 'plot1'))), 
                                               fluidRow(column(width = 6,withSpinner(plotOutput(outputId = 'plotrainsummer'))),
                                               column(width = 6,withSpinner(plotOutput(outputId = 'plotrainwinter')))
                                               ))),
                            
-                           tabPanel("Richness",
-                                    sidebarPanel(width = 3,
-                                                 selectInput('year', 'Year', c("2016",1990:2016)),
-                                                 selectInput('plant', 'Plants', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected="Brachychiton")),
-                                    mainPanel(fluidRow(withSpinner(plotOutput(outputId = 'plot2'))), 
-                                              fluidRow(column(width = 6,withSpinner(plotOutput(outputId = 'plotrainsummer'))),
-                                                       column(width = 6,withSpinner(plotOutput(outputId = 'plotrainwinter')))
-                                              ))),
+                           # tabPanel("Richness",
+                           #          sidebarPanel(width = 3,
+                           #                       selectInput('year', 'Year', c("all",1990:2016), selected=2016),
+                           #                       selectInput('plant', 'Plants', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected="Brachychiton")),
+                           #          mainPanel(fluidRow(withSpinner(plotOutput(outputId = 'plot2'))),
+                           #                    fluidRow(column(width = 6,withSpinner(plotOutput(outputId = 'plotrainsummer'))),
+                           #                             column(width = 6,withSpinner(plotOutput(outputId = 'plotrainwinter')))
+                           #                    ))),
+                           
                            tabPanel("Taxonomic Trees",
                                     sidebarPanel(width = 3,
                                                  selectInput('genus', 'Genus', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected = "Brachychiton")),
@@ -180,7 +183,6 @@ server <- function(input, output, session){
     
   })
   
-  
   output$plotrainsummer <- renderPlot({
     
 if(input$year=="all"){
@@ -211,25 +213,14 @@ if(input$year=="all"){
   })
   
   
-  output$plot2 <- renderPlot({
-    
-    datos <- datos %>% separate(scientificNameOriginal, c("genus", "species"),
-                                remove = FALSE)
-    
-    datos_g_sp <- datos %>%
-      select(scientificNameOriginal, genus, species) %>%
-      distinct() %>%
-      count(genus, species)
-    
-    genus <- c("Triodia", "Brachychiton", "Flindersia", "Livistona", "Callitris", "Daviesia", "Ficus", "Hakea")
-    
-    spec_counts <- datos %>% filter(!(species %in% genus)) %>% filter(year==input$year)
-    
-    
-    ggplot(spec_counts, aes(x=longitude, y=latitude)) + geom_hex(bins = 55)
-    
-        
-  })
+  # output$plot2 <- renderPlot({
+  #   
+  #  
+  #   spec_counts %>% filter(year==input$year)%>%
+  #     filter(genus=="input$plant") %>% ggplot(aes(x=longitude, y=latitude)) + geom_hex(bins = 55)
+  #   
+  #       
+  # })
   
   
 }
