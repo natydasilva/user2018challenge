@@ -31,7 +31,14 @@ genus <- c("Triodia", "Brachychiton", "Flindersia", "Livistona", "Callitris", "D
 
 spec_counts <- datos %>% filter(!(species %in% genus))
 
-ggplot(spec_counts, aes(x=longitude, y=latitude)) + geom_hex(bins = 55)
+spec_counts %>% filter(genus=="Hakea") %>%ggplot( aes(x=longitude, y=latitude)) + geom_hex(bins = 55)
+
+spec_counts %>% filter(genus=="Hakea") %>% mutate(lat2 =round(latitude)) %>%
+  group_by( lat2,longitude,)%>%
+  summarise(n = n()) %>% head()
+  ggplot( aes(x=longitude, y=lat2, colour = n)) + scale_color_viridis()
+
+  geom_hex(bins = 55)
 
 #spec_counts %>% count(year) %>% print(n=250)
 
@@ -91,8 +98,9 @@ ggplot() + geom_point(data=sub, aes(x=n, y=latitude)) +
   facet_wrap(~year, ncol=3) +
   ggtitle(sub$genus[1])
 
-ggplot() + geom_point(data=sub, aes(x=latitude, y=longitude, colour=n)) +
-  scale_colour_viridis() + theme_map() + facet_wrap(~year, ncol=3)
+ggplot() + geom_point(data=sub, aes(y=latitude, x=longitude, colour=n)) +
+  scale_colour_viridis() + theme_map() 
++ facet_wrap(~year, ncol=3)
 
 # Gondwanaland: Hakea, Daviesia, Callitris
 # NOT: Triodia, Ficus, Brachychiton
