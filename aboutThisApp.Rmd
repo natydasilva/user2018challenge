@@ -1,0 +1,13 @@
+---
+title: "About This App"
+author: "Hazel Kavili & Natalia Da Silva"
+date: "7/11/2018"
+output: html_document
+---
+
+###Introduction
+This project aims to provide some insights about the distribution of some plants species around south Australia.
+Ecologists have been operating on the latitude gradient, as we get closer to the equator, species richness is greater. We can see the some back story of this theory from [here](https://en.wikipedia.org/wiki/Latitudinal_gradients_in_species_diversity). We design a small Shiny App to see that is not true for Australian plants. Our theory says for Australia "greater species richness the closer to the south pole".
+
+###Application Structure and Design
+Here we explained how we want to 
