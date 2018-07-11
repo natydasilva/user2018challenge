@@ -7,7 +7,7 @@ datos <- read_csv("datos.csv")
 datos <- datos %>% filter((-43.00311<=latitude & latitude <= -12.46113)) %>%
   filter(113.6594 <= longitude & longitude <= 153.61194)
 
-latlong <- datos %>% select(longitude, latitude) %>%
+latlong <- datos %>% dplyr::select(longitude, latitude) %>%
   distinct()
 
 update_station_locations()
@@ -102,14 +102,14 @@ ggplot(rain_stn_patterns_all, aes(x=yr_rain, y=sw_diff)) + geom_point() +
   scale_x_sqrt() +
   theme(aspect.ratio=1)
 
-map + geom_point(data=rain_stn_patterns_all, aes(x=lon, y=lat, colour=yr_rain)) +
+map + geom_point(data=rain_stn_patterns_all, aes(x=lon.x, y=lat.x, colour=yr_rain)) +
   scale_colour_viridis_c()
-map + geom_point(data=rain_stn_patterns_all, aes(x=lon, y=lat, colour=sw_diff)) +
+map + geom_point(data=rain_stn_patterns_all, aes(x=lon.x, y=lat.x, colour=sw_diff)) +
   scale_colour_distiller(palette="RdYlBu", limits=c(-1800, 1800))
 
 # Bin precip
 rain_stn_patterns_all_bin <- rain_stn_patterns_all %>%
-  mutate(lat_bin = round(lat*2, 0)/2, lon_bin = round(lon*2, 0)/2)
+  mutate(lat_bin = round(lat.x*2, 0)/2, lon_bin = round(lon.x*2, 0)/2)
 map + geom_point(data=rain_stn_patterns_all_bin, aes(x=lon_bin, y=lat_bin, colour=yr_rain)) +
   scale_colour_viridis_c()
 
@@ -134,6 +134,6 @@ diversity_rain_onlysix <- diversity_rain %>%
   ungroup()
 
 map +
-  geom_point(data=diversity_rain_onlysix, aes(x=lon, y=lat, colour=p), alpha=0.5) +
+  geom_point(data=diversity_rain_onlysix, aes(x=lon.x, y=lat.x, colour=p), alpha=0.5) +
   scale_colour_viridis_c() + facet_wrap(~genus)
 save(diversity_rain_onlysix, file="diversity_rain_onlysix.rda")
