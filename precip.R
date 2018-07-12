@@ -4,13 +4,14 @@ library(plotly)
 library(ggthemes)
 
 datos <- read_csv("datos.csv")
-datos <- datos %>% filter((-43.00311<=latitude & latitude <= -12.46113)) %>%
+datos <- datos %>% 
+  filter((-43.00311<=latitude & latitude <= -12.46113)) %>%
   filter(113.6594 <= longitude & longitude <= 153.61194)
 
 latlong <- datos %>% dplyr::select(longitude, latitude) %>%
   distinct()
 
-update_station_locations()
+#update_station_locations()
 
 i <- sample(1:nrow(latlong), 1)
 rain <- get_historical(latlon = c(latlong$longitude[i], latlong$latitude[i]), type="rain")
@@ -50,6 +51,7 @@ map <- aus_map %>%
   theme_bw() + coord_map() + theme_map()
 
 rain_stns <- stns %>% filter(as.integer(site) %in% rain$Station_number)
+
 map + geom_point(data=rain_stns, aes(x=lon, y=lat))
 
 # Global pattern lat/long diversity gradient
@@ -59,29 +61,39 @@ map + geom_point(data=rain_stns, aes(x=lon, y=lat))
 # more diversity in the south
 # Which ancestral plants were temperate and suspect that they don't
 
-load("precip1_100.rda")
-load("precip701_800.rda")
-load("precip201_300.rda")
-load("precip301_400.rda")
-load("precip401_500.rda")
-load("precip501_600.rda")
-load("precip601_700.rda")
-load("precip801_883.rda")
+rain1 <- load("precip1_100.rda")
+#load("precip701_800.rda")
+rain2 <- load("precip201_300.rda")
+rain3 <- load("precip301_400.rda")
+rain4 <- load("precip401_500.rda")
+rain5 <- load("precip501_600.rda")
+rain6 <- load("precip601_700.rda")
+rain7 <- load("precip801_883.rda")
+
+rain <- rbind(rain1, rain2, rain3, rain4, rain5, rain6, rain7)
+
+
 rain_yr_smry <- rain %>% filter(Year > 1969) %>%
   group_by(Station_number, Year) %>%
   summarise(yr_rain = mean(Rainfall, na.rm=T)*365, n=length(Rainfall))
+
 ggplot(rain_yr_smry, aes(x=Year, y=yr_rain, group=Station_number)) + geom_line()
+
 rain_yr_mean <- rain_yr_smry %>%
   group_by(Station_number) %>%
   summarise(yr_rain = mean(yr_rain))
+
 rain_mth_smry <- rain %>% filter(Year > 1969) %>%
   group_by(Station_number, Month) %>%
   summarise(mth_rain = mean(Rainfall, na.rm=T)*31, n=length(Rainfall))
+
 ggplot(rain_mth_smry, aes(x=Month, y=mth_rain, group=Station_number)) + geom_line()
+
 rain_season_smry <- rain_mth_smry %>%
   group_by(Station_number) %>%
   summarise(sw_diff = sum(mth_rain[Month %in% c(12, 1, 2)])-
               sum(mth_rain[Month %in% c(6, 7, 8)]))
+
 ggplot(rain_season_smry, aes(x=sw_diff)) + geom_histogram()
 # Need some quality control, remove when not 12 months
 # If diff is big negative? One outlier in 1_100 data

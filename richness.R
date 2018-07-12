@@ -14,6 +14,7 @@ datos <- datos %>% filter((-43.00311<=latitude & latitude <= -9)) %>%
   filter(!is.na(year)) %>%
   filter(year>1969)
 
+
 load("stns.rda")
 stns <- stns %>% filter((-43.00311<=lat & lat <= -9)) %>%
   filter(113.6594 <= lon & lon <= 153.61194)
@@ -22,7 +23,7 @@ datos <- datos %>% separate(scientificNameOriginal, c("genus", "species"),
                             remove = FALSE)
 
 datos_g_sp <- datos %>%
-  select(scientificNameOriginal, genus, species) %>%
+  dplyr::select(scientificNameOriginal, genus, species) %>%
   distinct() %>%
   count(genus, species)
 
@@ -39,7 +40,7 @@ spec_counts %>% filter(genus=="Hakea") %>% mutate(lat2 =round(latitude)) %>%
 
   geom_hex(bins = 55)
 
-spec_counts %>% count(year) %>% print(n=250)
+#spec_counts %>% count(year) %>% print(n=250)
 
 # Generate a hexagon grid of Australia
 # From Steph Kobakian's atlas code
@@ -108,7 +109,7 @@ ggplot() + geom_point(data=sub, aes(y=latitude, x=longitude, colour=n)) +
 # The diversity is richer closer to the pol, not the equator
 
 diversity_noyr <- spec_counts_bin %>%
-  select(-n) %>%
+  dplyr::select(-n) %>%
   group_by(genus, longitude, latitude) %>%
   tally() %>%
   ungroup()
@@ -138,4 +139,6 @@ map + geom_point(data=sub, aes(x=longitude, y=latitude, colour=n)) +
   scale_colour_viridis() +
   ggtitle(sub$genus[1])
 
-spec_counts_bin %>% select(-n) %>% ungroup() %>% filter(genus == "Livistona") %>% count(species, sort=TRUE) %>% print(n=50)
+spec_counts_bin %>% select(-n) %>% 
+  ungroup() %>% filter(genus == "Livistona") %>% 
+  count(species, sort=TRUE) %>% print(n=50)
