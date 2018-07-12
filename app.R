@@ -80,7 +80,7 @@ mete_winter <- meteoro %>%
   summarise(Rainfallm = mean(Rainfall)) #dim 31755 rows, 4 cols
 
 #Load aus map
-#load("aus_map.Rda")
+load("aus_map.Rda")
 map <- aus_map %>%
   ggplot() +
   geom_polygon(aes(long, lat, group = group), alpha = 1 / 3) +
@@ -138,7 +138,7 @@ ui <- fluidPage(
     #   "Richness",
     #   sidebarPanel(
     #     width = 3,
-    #     selectInput('year', 'Year', c("2016", 1990:2016)),
+    #     selectInput('year', 'Year', c("all", 1990:2016, selected = all)),
     #     selectInput(
     #       'plant',
     #       'Plants',
@@ -156,28 +156,7 @@ ui <- fluidPage(
     #     column(width = 6, withSpinner(plotOutput(outputId = 'plotrainwinter')))
     #   ))
     # ),
-    # tabPanel(
-    #   "Taxonomic Trees",
-    #   sidebarPanel(
-    #     width = 3,
-    #     selectInput(
-    #       'genus',
-    #       'Genus',
-    #       c(
-    #         "Brachychiton",
-    #         "Triodia",
-    #         "Flindersia",
-    #         "Livistona",
-    #         "Callitris",
-    #         "Daviesia",
-    #         "Ficus",
-    #         "Hakea"
-    #       ),
-    #       selected = "Brachychiton"
-    #     )
-    #   ),
-    #   mainPanel(withSpinner(plotOutput(outputId = 'plotTaxo')))
-    # ),
+    
     tabPanel("About This App")
   )
   
@@ -210,18 +189,6 @@ server <- function(input, output, session) {
     ax <- as.phylo( ~ genus / scientificName, data = tx)
     
   }
-  
-  # reactivePlants <- reactive({
-  #   plantSub(input$genus)
-  # })
-  # output$plotTaxo <- renderPlot({
-  #   plotTree(
-  #     reactivePlants(),
-  #     type = "fan",
-  #     color = "orange",
-  #     fsize = 3
-  #   )
-  # })
   
   #Descriptives
   datosDesc <- datos %>% group_by(state, year) %>%
