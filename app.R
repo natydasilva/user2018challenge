@@ -51,15 +51,15 @@ spec_counts_bin <- spec_counts %>%
   ungroup()
 
 diversity_noyr <- spec_counts_bin %>%
-  dplyr::select(-n) %>% 
-  group_by(year, genus, longitude, latitude) %>% 
+  dplyr::select(-n) %>%
   mutate(locate = ifelse(genus == "Callitris", "Native",
                          ifelse(genus == "Hakea", "Native",
                                 ifelse(genus == "Daviesia", "Native",
                                        ifelse(genus == "Flindersia", "Native",
                                               ifelse(genus == "Livistona", "Native","Introduced")))))) %>% 
+  group_by(genus, longitude, latitude, locate) %>%
   tally() %>% 
-  ungroup()
+  ungroup() 
 
 #Climate
 stations <- stns %>%

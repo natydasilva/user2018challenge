@@ -50,9 +50,9 @@ diversity_noyr <- spec_counts_bin %>%
                                 ifelse(genus == "Daviesia", "Native",
                                        ifelse(genus == "Flindersia", "Native",
                                               ifelse(genus == "Livistona", "Native","Introduced")))))) %>% 
-  group_by(genus, longitude, latitude) %>%
-  tally() %>%
-  ungroup() 
+  group_by(genus, longitude, latitude, locate) %>%
+  tally() %>% 
+  ungroup() %>% head()
 
 
 
@@ -90,7 +90,7 @@ map + geom_point(data=sub, aes(x=longitude, y=latitude, colour=n)) +
    })
  
 
-
+  
 
 
 
