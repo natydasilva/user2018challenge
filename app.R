@@ -83,7 +83,9 @@ ui <- fluidPage(theme = shinytheme("cosmo"),
                            tabPanel("Taxonomic Trees",
                                     sidebarPanel(width = 3,
                                                  selectInput('genus', 'Genus', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected = "Brachychiton")),
-                                    mainPanel(withSpinner(plotOutput(outputId = 'plotTaxo')))))
+                                    mainPanel(withSpinner(plotOutput(outputId = 'plotTaxo')))),
+                           tabPanel("About this app", includeHTML("description.html"), value = 5)
+                           )
 
     )
 
