@@ -15,10 +15,13 @@ library(shinycssloaders)
 library(factorMerger)
 library(data.table)
 library(viridis)
-plants_sub <- read_csv("plant_sub.csv")
-datos <- fread("datos.csv")
-load("rain_all.rda")
-load("stns.rda")
+#plants_sub <- read_csv("plant_sub.csv")
+# datos <- read_csv("datos.csv")
+#load("rain_all.rda")
+#load("stns.rda")
+
+
+
 datos <-
   datos %>% separate(scientificNameOriginal, c("genus", "species"),
                      remove = FALSE)
@@ -39,36 +42,45 @@ genus <- c(
   "Hakea"
 )
 
+#Diversity - Richness
 spec_counts <- datos %>% filter(!(species %in% genus))
 
+spec_counts_bin <- spec_counts %>%
+  group_by(year, genus, species, longitude, latitude) %>%
+  tally() %>%
+  ungroup()
 
-<<<<<<< HEAD
+diversity_noyr <- spec_counts_bin %>%
+  dplyr::select(-n) %>% 
+  group_by(year, genus, longitude, latitude) %>% 
+  mutate(locate = ifelse(genus == "Callitris", "Native",
+                         ifelse(genus == "Hakea", "Native",
+                                ifelse(genus == "Daviesia", "Native",
+                                       ifelse(genus == "Flindersia", "Native",
+                                              ifelse(genus == "Livistona", "Native","Introduced")))))) %>% 
+  tally() %>% 
+  ungroup()
+
+#Climate
 stations <- stns %>%
   mutate(Station_number = as.numeric(site))
 
-=======
-
-
-stations<- stns %>%mutate(Station_number = as.numeric(site)) 
->>>>>>> bbc61b8b1c87da43a0172aa02dcfc094a8feae06
 meteoro <- inner_join(stations, rain1, by = "Station_number") %>%
   filter((-43.00311 <= lat & lat <= -12.46113)) %>%
-  filter(113.6594 <= lon & lon <= 153.61194)
+  filter(113.6594 <= lon & lon <= 153.61194)   #dim 12786716 rows, 22 cols
 
 mete_summer <- meteoro %>%
   filter(Month %in% c(12, 1, 2)) %>%
   group_by(Year, lon, lat) %>%
-  summarise(Rainfallm = mean(Rainfall))
+  summarise(Rainfallm = mean(Rainfall)) #dim 32204 rows, 4 cols
 
 mete_winter <- meteoro %>%
   filter(Month %in% c(6, 7, 8)) %>%
   group_by(Year, lon, lat) %>%
-  summarise(Rainfallm = mean(Rainfall))
+  summarise(Rainfallm = mean(Rainfall)) #dim 31755 rows, 4 cols
 
-load("aus_map.Rda")
-
-#red_map <- aus_map[sample(1:nrow(aus_map), 2000 ),]
-
+#Load aus map
+#load("aus_map.Rda")
 map <- aus_map %>%
   ggplot() +
   geom_polygon(aes(long, lat, group = group), alpha = 1 / 3) +
@@ -77,7 +89,6 @@ map <- aus_map %>%
 
 # Define UI for app that draws a histogram ----
 
-<<<<<<< HEAD
 ui <- fluidPage(
   theme = shinytheme("cosmo"),
   navbarPage(
@@ -94,10 +105,10 @@ ui <- fluidPage(
     ),
     
     tabPanel(
-      "Plants and rain",
+      "Plants and Rain",
       sidebarPanel(
         width = 3,
-        selectInput('year', 'Year', c("2016", 1990:2016)),
+        selectInput('year', 'Year', c("all", 1990:2016), selected = 2016),
         selectInput(
           'plant',
           'Plants',
@@ -123,97 +134,55 @@ ui <- fluidPage(
       ))
     ),
     
-    tabPanel(
-      "Richness",
-      sidebarPanel(
-        width = 3,
-        selectInput('year', 'Year', c("2016", 1990:2016)),
-        selectInput(
-          'plant',
-          'Plants',
-          c(
-            "Brachychiton",
-            "Triodia",
-            "Flindersia",
-            "Livistona",
-            "Callitris",
-            "Daviesia",
-            "Ficus",
-            "Hakea"
-          ),
-          selected = "Brachychiton"
-        )
-      ),
-      mainPanel(fluidRow(withSpinner(
-        plotOutput(outputId = 'plot2')
-      )),
-      fluidRow(
-        column(width = 6, withSpinner(plotOutput(outputId = 'plotrainsummer'))),
-        column(width = 6, withSpinner(plotOutput(outputId = 'plotrainwinter')))
-      ))
-    ),
-    tabPanel(
-      "Taxonomic Trees",
-      sidebarPanel(
-        width = 3,
-        selectInput(
-          'genus',
-          'Genus',
-          c(
-            "Brachychiton",
-            "Triodia",
-            "Flindersia",
-            "Livistona",
-            "Callitris",
-            "Daviesia",
-            "Ficus",
-            "Hakea"
-          ),
-          selected = "Brachychiton"
-        )
-      ),
-      mainPanel(withSpinner(plotOutput(outputId = 'plotTaxo')))
-    ),
+    # tabPanel(
+    #   "Richness",
+    #   sidebarPanel(
+    #     width = 3,
+    #     selectInput('year', 'Year', c("2016", 1990:2016)),
+    #     selectInput(
+    #       'plant',
+    #       'Plants',
+    #       list(`Native` = c("Callitris","Hakea", "Daviesia", "Flindersia", "Livistona"),
+   # `Introduced` = c("Brachychiton", "Triodia", "Ficus")),
+  #selected = "Native"))
+    #       
+    #     )
+    #   ),
+    #   mainPanel(fluidRow(withSpinner(
+    #     plotOutput(outputId = 'plot2')
+    #   )),
+    #   fluidRow(
+    #     column(width = 6, withSpinner(plotOutput(outputId = 'plotrainsummer'))),
+    #     column(width = 6, withSpinner(plotOutput(outputId = 'plotrainwinter')))
+    #   ))
+    # ),
+    # tabPanel(
+    #   "Taxonomic Trees",
+    #   sidebarPanel(
+    #     width = 3,
+    #     selectInput(
+    #       'genus',
+    #       'Genus',
+    #       c(
+    #         "Brachychiton",
+    #         "Triodia",
+    #         "Flindersia",
+    #         "Livistona",
+    #         "Callitris",
+    #         "Daviesia",
+    #         "Ficus",
+    #         "Hakea"
+    #       ),
+    #       selected = "Brachychiton"
+    #     )
+    #   ),
+    #   mainPanel(withSpinner(plotOutput(outputId = 'plotTaxo')))
+    # ),
     tabPanel("About This App")
   )
   
 )
-=======
-ui <- fluidPage(theme = shinytheme("cosmo"),
-                navbarPage("Australia Plants", fluid = TRUE,
-                           tabPanel("Descriptions",
-                                    tabsetPanel(
-                                      tabPanel("Temperature", withSpinner(plotOutput(outputId = 'tempplot'))),
-                                      tabPanel("Precipitation",withSpinner(plotOutput(outputId = 'prpplot'))),
-                                      tabPanel("Observations by State", withSpinner(plotOutput(outputId = 'obsvplot'))),
-                                      tabPanel("Observations by Plants", withSpinner(plotOutput(outputId = 'obsvplot2')))
-                                    )),
-                           
-                           tabPanel("Plants and rain",
-                                    sidebarPanel(width = 3,
-                                                 selectInput('year', 'Year', c("all",1990:2016), selected=2016),
-                                                 selectInput('plant', 'Plants', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected="Brachychiton")),
-                                    mainPanel(fluidRow(withSpinner(plotOutput(outputId = 'plot1'))), 
-                                              fluidRow(column(width = 6,withSpinner(plotOutput(outputId = 'plotrainsummer'))),
-                                              column(width = 6,withSpinner(plotOutput(outputId = 'plotrainwinter')))
-                                              ))),
-                           
-                           # tabPanel("Richness",
-                           #          sidebarPanel(width = 3,
-                           #                       selectInput('year', 'Year', c("all",1990:2016), selected=2016),
-                           #                       selectInput('plant', 'Plants', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected="Brachychiton")),
-                           #          mainPanel(fluidRow(withSpinner(plotOutput(outputId = 'plot2'))),
-                           #                    fluidRow(column(width = 6,withSpinner(plotOutput(outputId = 'plotrainsummer'))),
-                           #                             column(width = 6,withSpinner(plotOutput(outputId = 'plotrainwinter')))
-                           #                    ))),
-                           
-                           tabPanel("Taxonomic Trees",
-                                    sidebarPanel(width = 3,
-                                                 selectInput('genus', 'Genus', c("Brachychiton", "Triodia", "Flindersia", "Livistona","Callitris", "Daviesia", "Ficus","Hakea"), selected = "Brachychiton")),
-                                    mainPanel(withSpinner(plotOutput(outputId = 'plotTaxo')))))
 
-    )
->>>>>>> bbc61b8b1c87da43a0172aa02dcfc094a8feae06
 
 
 # Define server logic required to draw a histogram ----
@@ -242,17 +211,17 @@ server <- function(input, output, session) {
     
   }
   
-  reactivePlants <- reactive({
-    plantSub(input$genus)
-  })
-  output$plotTaxo <- renderPlot({
-    plotTree(
-      reactivePlants(),
-      type = "fan",
-      color = "orange",
-      fsize = 3
-    )
-  })
+  # reactivePlants <- reactive({
+  #   plantSub(input$genus)
+  # })
+  # output$plotTaxo <- renderPlot({
+  #   plotTree(
+  #     reactivePlants(),
+  #     type = "fan",
+  #     color = "orange",
+  #     fsize = 3
+  #   )
+  # })
   
   #Descriptives
   datosDesc <- datos %>% group_by(state, year) %>%
@@ -293,8 +262,6 @@ server <- function(input, output, session) {
   
   output$plot1 <- renderPlot({
     ### Australian MAP
-    
-    
     #MAP with totals by year
     
     pl_plant <- function(pl, y = "all", dat) {
@@ -399,47 +366,16 @@ server <- function(input, output, session) {
   })
   
   
-<<<<<<< HEAD
-  output$plot2 <- renderPlot({
-    datos <-
-      datos %>% separate(scientificNameOriginal, c("genus", "species"),
-                         remove = FALSE)
-    
-    datos_g_sp <- datos %>%
-      select(scientificNameOriginal, genus, species) %>%
-      distinct() %>%
-      count(genus, species)
-    
-    genus <-
-      c(
-        "Triodia",
-        "Brachychiton",
-        "Flindersia",
-        "Livistona",
-        "Callitris",
-        "Daviesia",
-        "Ficus",
-        "Hakea"
-      )
-    
-    spec_counts <-
-      datos %>% filter(!(species %in% genus)) %>% filter(year == input$year)
-    
-    
-    ggplot(spec_counts, aes(x = longitude, y = latitude)) + geom_hex(bins = 55)
-    
-    
-  })
-=======
+
+
   # output$plot2 <- renderPlot({
-  #   
-  #  
-  #   spec_counts %>% filter(year==input$year)%>%
-  #     filter(genus=="input$plant") %>% ggplot(aes(x=longitude, y=latitude)) + geom_hex(bins = 55)
-  #   
-  #       
-  # })
->>>>>>> bbc61b8b1c87da43a0172aa02dcfc094a8feae06
+  
+  #  spec_counts_bin %>% filter(year==input$year) %>%
+  #    filter(genus=="input$plant") %>% 
+  #     ggplot(aes(x=longitude, y=latitude)) + 
+  #     geom_hex(bins = 55)
+  #  })
+
   
   
 }

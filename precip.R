@@ -4,7 +4,8 @@ library(plotly)
 library(ggthemes)
 
 datos <- read_csv("datos.csv")
-datos <- datos %>% filter((-43.00311<=latitude & latitude <= -12.46113)) %>%
+datos <- datos %>% 
+  filter((-43.00311<=latitude & latitude <= -12.46113)) %>%
   filter(113.6594 <= longitude & longitude <= 153.61194)
 
 latlong <- datos %>% dplyr::select(longitude, latitude) %>%
